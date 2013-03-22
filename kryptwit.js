@@ -1,6 +1,5 @@
 
 var TwitterFormatter = {
-  name: "TwitterFormatter",
   parse: function (tweet, x) {
 
     var cipher = CryptoJS.lib.CipherParams.create({
