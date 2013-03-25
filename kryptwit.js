@@ -1,18 +1,45 @@
 
+var base85lookup = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!`#$%&/()='?_{+*~}-.,[]@";
+
 var base85encode = function (data) {
-  return data;
+  var string = "";
+
+  for (var i = 0; i*4 < data.sigBytes; i++) {
+    var v = data.words[i] >>> 0;
+    for (var j = 0; j < 5; j++) {
+      var r = v%85;
+      string += base85lookup[r];
+      v = (v/85)>>>0;
+    }
+  }
+
+  return string;
 }
 
 var base85decode = function (data) {
-  return data;
+  var out = CryptoJS.lib.WordArray.create([], data.length/5*4);
+
+  for (var i = 0; i*5 < data.length; i++) {
+    var v = 0;
+    for (var j = 4; j >= 0; j--) {
+      var add = base85lookup.indexOf(data[i*5+j]);
+      v = v*85 + add;
+    }
+    out.words[i] = v>>0;
+  }
+
+  return out;
 }
 
 var TwitterFormatter = {
-  parse: function (tweet, x) {
+  iv_length: function () {
+    return 10;
+  },
 
+  parse: function (tweet, x) {
     var cipher = CryptoJS.lib.CipherParams.create({
-      ciphertext: CryptoJS.enc.Hex.parse(base85decode(tweet.slice(128/8*2+4))),
-      iv: CryptoJS.enc.Hex.parse(base85decode(tweet.slice(4, 128/8*2+4)))
+      ciphertext: base85decode(tweet.slice(this.iv_length()+4)),
+      iv: base85decode(tweet.slice(4, this.iv_length()+4))
     });
 
     return cipher;
@@ -30,6 +57,7 @@ var derive_key = function (username, password) {
 var pad = function (string, limit) {
   var data = CryptoJS.enc.Utf8.parse(string);
   CryptoJS.pad.ZeroPadding.pad(data, limit/4);
+
   return data;
 }
 
@@ -39,12 +67,12 @@ var unpad = function (data) {
 
 var status_update_encrypt = function (plaintext, username, password) {
   var key = derive_key(username, password);
-  var iv  = CryptoJS.lib.WordArray.random(128/8);
+  var iv  = CryptoJS.lib.WordArray.random(8);
 
   return CryptoJS.AES.encrypt(
     pad(plaintext, 100),
     key,
-    { mode: CryptoJS.mode.CTR, iv: iv, format: TwitterFormatter }).toString();
+    { padding: CryptoJS.pad.NoPadding, mode: CryptoJS.mode.CTR, iv: iv, format: TwitterFormatter }).toString();
 };
 
 var status_update_decrypt = function (ciphertext, username, password) {
@@ -53,7 +81,7 @@ var status_update_decrypt = function (ciphertext, username, password) {
   var x = CryptoJS.AES.decrypt(
     ciphertext,
     key,
-    { mode: CryptoJS.mode.CTR, format: TwitterFormatter });
+    { padding: CryptoJS.pad.NoPadding, mode: CryptoJS.mode.CTR, format: TwitterFormatter });
 
   unpad(x);
   return x.toString(CryptoJS.enc.Utf8);
