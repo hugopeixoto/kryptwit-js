@@ -51,7 +51,12 @@ var TwitterFormatter = {
 };
 
 var derive_key = function (username, password) {
-  return CryptoJS.PBKDF2(password, username, { keySize: 256/32, iterations: 1000 });
+  return CryptoJS.PBKDF2(
+    CryptoJS.enc.Utf8.parse(password),
+    CryptoJS.enc.Utf8.parse(username),
+    {     hasher: CryptoJS.algo.SHA256,
+         keySize: 256/32,
+      iterations: 1000 });
 }
 
 var pad = function (string, limit) {
