@@ -1,17 +1,25 @@
 
+var base85encode = function (data) {
+  return data;
+}
+
+var base85decode = function (data) {
+  return data;
+}
+
 var TwitterFormatter = {
   parse: function (tweet, x) {
 
     var cipher = CryptoJS.lib.CipherParams.create({
-      ciphertext: CryptoJS.enc.Hex.parse(tweet.slice(128/8*2+4)),
-      iv: CryptoJS.enc.Hex.parse(tweet.slice(4, 128/8*2+4))
+      ciphertext: CryptoJS.enc.Hex.parse(base85decode(tweet.slice(128/8*2+4))),
+      iv: CryptoJS.enc.Hex.parse(base85decode(tweet.slice(4, 128/8*2+4)))
     });
 
     return cipher;
   },
 
   stringify: function (cipher) {
-    return ";-) " + cipher.iv + cipher.ciphertext;
+    return ";-) " + base85encode(cipher.iv) + base85encode(cipher.ciphertext);
   }
 };
 
