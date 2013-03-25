@@ -19,23 +19,35 @@ var derive_key = function (username, password) {
   return CryptoJS.PBKDF2(password, username, { keySize: 256/32, iterations: 1000 });
 }
 
+var pad = function (string, limit) {
+  var data = CryptoJS.enc.Utf8.parse(string);
+  CryptoJS.pad.ZeroPadding.pad(data, limit/4);
+  return data;
+}
+
+var unpad = function (data) {
+  CryptoJS.pad.ZeroPadding.unpad(data);
+}
+
 var status_update_encrypt = function (plaintext, username, password) {
   var key = derive_key(username, password);
   var iv  = CryptoJS.lib.WordArray.random(128/8);
 
   return CryptoJS.AES.encrypt(
-    plaintext,
+    pad(plaintext, 100),
     key,
     { mode: CryptoJS.mode.CTR, iv: iv, format: TwitterFormatter }).toString();
 };
 
 var status_update_decrypt = function (ciphertext, username, password) {
   var key = derive_key(username, password);
-  var iv  = CryptoJS.enc.Hex.parse(ciphertext.slice(4, 128/8*2+4));
 
-  return CryptoJS.AES.decrypt(
+  var x = CryptoJS.AES.decrypt(
     ciphertext,
     key,
-    { mode: CryptoJS.mode.CTR, format: TwitterFormatter }).toString(CryptoJS.enc.Utf8);
+    { mode: CryptoJS.mode.CTR, format: TwitterFormatter });
+
+  unpad(x);
+  return x.toString(CryptoJS.enc.Utf8);
 };
 
