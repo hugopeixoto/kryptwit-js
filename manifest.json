@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+
+  "name": "Kryptwit",
+  "description": "Cipher for twitter",
+  "version": "1.0",
+
+  "content_scripts": [
+    {
+      "matches": ["https://twitter.com/*"],
+      "css": ["twitter.css"],
+      
+      "js": [
+        "crypto/aes.js",
+        "crypto/pad-nopadding.js",
+        "crypto/pad-zeropadding.js",
+        "crypto/mode-ctr-gladman.js",
+        "crypto/pbkdf2.js",
+        "crypto/sha256-min.js",
+        "crypto/kryptwit.js",
+        "twitter.js",
+        "jquery-1.9.1.min.js"]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-var username  = "hugopeixoto";
+var username  = "KryptwitJS";
 var password  = "zomgpwd";
 var plaintext = "this contains the text one should cipher and decipher. 100 characters maximum.";
 
