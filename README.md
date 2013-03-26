@@ -3,11 +3,13 @@
 This library implements Kryptwit (blol.org/845-kryptwit-01) in Javascript.
 It uses CryptoJS to handle the cryptography primitives. The exception is mode-ctr-gladman.js, which was vastly modified be compliant with the specification.
 
+NOTE: This is not even close to be production ready. I'm not sure I trust crypto-js yet.
+
 # Example
 
 There is a small encrypt/decrypt sample in sample.js. It can be executed with d8 (V8 javascript shell):
 
-    d8 aes.js pbkdf2.js pad-nopadding.js pad-zeropadding.js sha256-min.js mode-ctr-gladman.js kryptwit.js sample.js
+    d8 crypto/*.js sample.js
 
 This yields the following:
 
