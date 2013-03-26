@@ -1,7 +1,8 @@
 
 var username  = "hugopeixoto";
 var password  = "zomgpwd";
-var plaintext = "so kawai";
+var plaintext = "this contains the text one should cipher and decipher. 100 characters maximum.";
+
 print("input :" + plaintext + " (" + plaintext.length + ")");
 
 var ciphertext = status_update_encrypt(plaintext, username, password);

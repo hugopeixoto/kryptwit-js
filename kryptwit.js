@@ -1,11 +1,18 @@
 
+function swap32(val) {
+  return ((val & 0xFF) << 24)
+    | ((val & 0xFF00) << 8)
+    | ((val >> 8) & 0xFF00)
+    | ((val >> 24) & 0xFF);
+}
+
 var base85lookup = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!`#$%&/()='?_{+*~}-.,[]@";
 
 var base85encode = function (data) {
   var string = "";
 
   for (var i = 0; i*4 < data.sigBytes; i++) {
-    var v = data.words[i] >>> 0;
+    var v = swap32(data.words[i]) >>> 0;
     for (var j = 0; j < 5; j++) {
       var r = v%85;
       string += base85lookup[r];
@@ -25,9 +32,8 @@ var base85decode = function (data) {
       var add = base85lookup.indexOf(data[i*5+j]);
       v = v*85 + add;
     }
-    out.words[i] = v>>0;
+    out.words[i] = swap32(v)>>0;
   }
-
   return out;
 }
 
@@ -77,7 +83,7 @@ var status_update_encrypt = function (plaintext, username, password) {
   return CryptoJS.AES.encrypt(
     pad(plaintext, 100),
     key,
-    { padding: CryptoJS.pad.NoPadding, mode: CryptoJS.mode.CTR, iv: iv, format: TwitterFormatter }).toString();
+    { padding: CryptoJS.pad.NoPadding, mode: CryptoJS.mode.CTRGladman, iv: iv, format: TwitterFormatter }).toString();
 };
 
 var status_update_decrypt = function (ciphertext, username, password) {
@@ -86,7 +92,7 @@ var status_update_decrypt = function (ciphertext, username, password) {
   var x = CryptoJS.AES.decrypt(
     ciphertext,
     key,
-    { padding: CryptoJS.pad.NoPadding, mode: CryptoJS.mode.CTR, format: TwitterFormatter });
+    { padding: CryptoJS.pad.NoPadding, mode: CryptoJS.mode.CTRGladman, format: TwitterFormatter });
 
   unpad(x);
   return x.toString(CryptoJS.enc.Utf8);
